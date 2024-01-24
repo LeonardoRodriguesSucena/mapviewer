@@ -1,0 +1,12 @@
+
+.div_img {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+.img_weather {
+  width: 32px;
+  height: 32px;
+}

@@ -1,0 +1,67 @@
+.divmenu-parent {
+  width: 100%;
+  align-items: center;
+}
+
+.divmenu {
+  float: left;
+  padding: 2px;
+  margin-top: 2px;
+  margin-right: 50px;
+  margin-left: 10px;
+  min-height: 30px;
+}
+
+.divmenu_right {
+  float:right;
+  padding: 2px;
+  margin-top: 2px;
+  margin-right: 10px;
+}
+
+.txt_lat_lgn{
+  width: 75px;
+}
+
+.button {
+  background-color: #58ac82;
+  font-weight: bolder;
+  border-color: #3a7055;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #3a7055;
+  color: #fefffe;
+  font-weight: bolder;
+}
+.button:focus {
+  box-shadow: 0 0 0 4px rgba(30, 255, 0, 0.15);
+}
+
+.button_reset {
+  background-color: #a0afb9;
+  font-weight: bolder;
+}
+
+.button_reset:hover,
+.button_reset:focus {
+  background-color: #373f3b;
+  color: #fefffe;
+  font-weight: bolder;
+}
+.button_reset:focus {
+  box-shadow: 0 0 0 4px rgba(118, 119, 118, 0.15);
+}
+
+.info_icon{
+  cursor: pointer;
+  text-decoration: solid;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  padding-right: 15px;
+}
+.info_icon:hover{
+  color: rgb(0, 0, 0);
+}

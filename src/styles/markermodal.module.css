@@ -1,0 +1,33 @@
+
+.a_delete {
+  color: #FFF;
+  background: #FF0000;
+  text-decoration:solid;
+  font-weight: bolder;
+}
+
+.info_box {
+  color: #333;
+  font: 400 13px Roboto, Arial, sans-serif;
+  background-color: white;
+  max-width: 140px; 
+}
+
+.btn_delete {
+  background-color: #f87575;;
+  font-weight: bolder;
+  border-color: #FF0000;
+}
+
+.btn_delete:hover {
+  background-color: #FF0000;
+  color: #fefffe;
+  font-weight: bolder;
+}
+
+.div_btn {
+  text-align: center;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+}
