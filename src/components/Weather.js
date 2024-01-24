@@ -3,7 +3,7 @@ import WeatherAPIService from "../Infrastructure/api/weatherApiService";
 import styles from "../styles/weather.module.css"
 
 //Component to show weather information
-//Weather
+//Weather component
 const WeatherComponent = ({ latitude, longitude }) => {
     const [weatherData, setWeatherData] = useState(null);
     const [loading, setLoading] = useState(true);
