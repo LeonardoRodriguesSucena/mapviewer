@@ -2,17 +2,19 @@ import React from 'react'
 import styles from "../styles/map.module.css";
 import MarkerModalComponent from '../components/MarkerModal.js'
 
-import { GoogleMap, useJsApiLoader, Marker, 
+import { useJsApiLoader, GoogleMap, Marker, 
     TrafficLayer,
     TransitLayer, 
-    BicyclingLayer
+    BicyclingLayer,
+    Autocomplete
 
 } from '@react-google-maps/api';
+
 
 //map size in screen
 const containerStyle = {
   width: '100%',
-  height: '92.5vh'
+  height: '92vh'
 };
 
 //initial center of map
@@ -319,13 +321,16 @@ const mapStyles = {
     }],
 };
 
+const libraries = ['places']
 
 function MapComponent() {
   
-    const { isLoaded } = useJsApiLoader({
+    const { isLoaded } = useJsApiLoader(
+      {
         id: process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID,
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    })
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+        libraries: libraries
+      })
     const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID
 
     const [map, setMap] = React.useState(null)
@@ -342,6 +347,7 @@ function MapComponent() {
     //input values latitude and longitude
     const [latInputValue, setLatInputValue] = React.useState('');
     const [lngInputValue, setLngInputValue] = React.useState('');
+    const [autocomplete, setAutocomplete] = React.useState(null);
 
 
     //get the markers saved in local storage
@@ -400,6 +406,25 @@ function MapComponent() {
     });
     }
 
+    const onLoadAutoComplete = (autocomplete) => {
+      console.log('autocomplete: ', autocomplete);
+      setAutocomplete(autocomplete);
+    };
+  
+    const onPlaceChanged = () => {
+      if (autocomplete !== null) {
+        let place = autocomplete.getPlace()
+        console.log(place);
+        const latitude = place.geometry.location.lat();
+        const longitude = place.geometry.location.lng();
+        setLatInputValue(formatLatLong(latitude))
+        setLngInputValue(formatLatLong(longitude))
+        addMarker(latitude,longitude)
+      } else {
+        console.log('Autocomplete is not loaded yet!');
+      }
+    };
+
   const addMarker = (latitude, longitude) => {
 
     if(!isValidLatitudeLongitude(latitude, longitude))
@@ -417,8 +442,8 @@ function MapComponent() {
     }
 
     //formating the latitude & longitude to max of 5 decimal places
-    const lat_value = parseFloat(parseFloat(latitude).toFixed(5));
-    const lng_value = parseFloat(parseFloat(longitude).toFixed(5));
+    const lat_value = formatLatLong(latitude);
+    const lng_value =  formatLatLong(longitude);
     console.log(`addMarker => lat:${lat_value} lng:${longitude}`)
 
     //preparing the new Maker
@@ -434,6 +459,10 @@ function MapComponent() {
     //focus the map near to the new marker
     map.panTo({ lat: newMarker.lat, lng: newMarker.lng })
   }
+
+  const formatLatLong = (value) => {
+    return parseFloat(parseFloat(value).toFixed(5));
+  } 
 
   function isValidLatitudeLongitude(lat, lng) {
     if ((lat.length <= 0) || (lng.length <= 0))
@@ -494,6 +523,16 @@ function MapComponent() {
                 <input type="checkbox" id="cb_transitLayer"   defaultChecked={layers.includes('transit')}    onClick={() => changeLayer('transit')} />Transit
                 <input type="checkbox" id="cb_bicyclingLayer" defaultChecked={layers.includes('bicycling')}  onClick={() => changeLayer('bicycling')} />Bicycling
         </div>
+        <div className={styles.divmenu}>
+            <b>Map Styles: </b>
+            <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
+                {Object.keys(mapStyles).map(key => (
+                    <option key={key} value={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </option>
+                ))}
+            </select>
+        </div>
 
         <div id="div_markers" className={styles.divmenu}>
             <b>Markers: </b>
@@ -508,17 +547,10 @@ function MapComponent() {
                                   }
                   }
                 className={styles.button} />
-        </div>
-
-        <div className={styles.divmenu}>
-            <b>Map Styles: </b>
-            <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
-                {Object.keys(mapStyles).map(key => (
-                    <option key={key} value={key}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </option>
-                ))}
-            </select>
+                &nbsp;
+                <Autocomplete onPlaceChanged={onPlaceChanged} onLoad={onLoadAutoComplete}>
+                  <input id='txt_autocomplete' maxLength="100" className={styles.txt_autocomplete}></input>
+                </Autocomplete>
         </div>
 
         <div className={styles.divmenu_right}>

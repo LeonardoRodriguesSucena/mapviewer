@@ -1,26 +1,35 @@
 .divmenu-parent {
-  width: 100%;
   align-items: center;
+  float: left;
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 100%;
 }
 
 .divmenu {
   float: left;
+  display: inline-flex;
   padding: 2px;
   margin-top: 2px;
-  margin-right: 50px;
-  margin-left: 10px;
+  margin-right: 10px;
+  margin-left: 20px;
   min-height: 30px;
 }
 
 .divmenu_right {
   float:right;
+  display: inline-flex;
   padding: 2px;
   margin-top: 2px;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 
 .txt_lat_lgn{
   width: 75px;
+  height: 20px;
+}
+.txt_autocomplete{
+  width: 350px;
 }
 
 .button {
