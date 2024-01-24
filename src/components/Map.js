@@ -509,7 +509,7 @@ function MapComponent() {
                   }
                 className={styles.button} />
         </div>
-
+        {/*Add autocomplete here */}
         <div className={styles.divmenu}>
             <b>Map Styles: </b>
             <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
