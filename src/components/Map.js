@@ -523,6 +523,16 @@ function MapComponent() {
                 <input type="checkbox" id="cb_transitLayer"   defaultChecked={layers.includes('transit')}    onClick={() => changeLayer('transit')} />Transit
                 <input type="checkbox" id="cb_bicyclingLayer" defaultChecked={layers.includes('bicycling')}  onClick={() => changeLayer('bicycling')} />Bicycling
         </div>
+        <div className={styles.divmenu}>
+            <b>Map Styles: </b>
+            <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
+                {Object.keys(mapStyles).map(key => (
+                    <option key={key} value={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </option>
+                ))}
+            </select>
+        </div>
 
         <div id="div_markers" className={styles.divmenu}>
             <b>Markers: </b>
@@ -542,7 +552,6 @@ function MapComponent() {
                   <input id='txt_autocomplete' maxLength="100" className={styles.txt_autocomplete}></input>
                 </Autocomplete>
         </div>
-
 
         <div className={styles.divmenu_right}>
           <span className={styles.info_icon} 
