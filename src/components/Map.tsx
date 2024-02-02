@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from "../styles/map.module.css";
-import MarkerModalComponent from '../components/MarkerModal.js'
+import MarkerModalComponent from './MarkerModal.js'
 import MarkerEntity from '../entities/MarkerEntity'
 import { Library } from '@googlemaps/js-api-loader';
 
@@ -25,20 +25,15 @@ const mapCenter = {
 
 //Case Study markers
 //using UTM 36N (Universal Transverse Mercator)
-let defaultMarkers = [
-  { id: "1A", lat: 29.9846, lng: 1.7863, meta_depth:5,     meta_layer:3,  easting:164465.645, northing:197713.476 },
-  { id: "2B", lat: 29.9563, lng: 1.7910, meta_depth:5,     meta_layer:6,  easting:161313.227, northing:198240.94 },
-  { id: "3C", lat: 31.8500, lng: 1.5072, meta_depth:21,    meta_layer:1,  easting:372072,     northing:166621 },
-  { id: "4D", lat: 32.0598, lng: 1.1018, meta_depth:3.23,  meta_layer:10, easting:395391,     northing:121794 },
-  { id: "5E", lat: 29.5860, lng: 1.4450, meta_depth:4,     meta_layer:3,  easting:120000,     northing:160000 },
-];
-
-// let defaultMarkers2 = []
-// defaultMarkers.push(
-//   new MarkerEntity(new MarkerEntity("1A",29.9846,1.7863,5,3,164465.645,197713.476))
-//                     );
-      
-
+let defaultMarkers:MarkerEntity[] = []
+defaultMarkers.push(
+  new MarkerEntity("1A",29.9846,1.7863,5,3,164465.645,197713.476),
+  new MarkerEntity("2B",29.9563,1.791,5,6,161313.227,198240.94),
+  new MarkerEntity("3C",31.85,1.5072,21,1,372072,166621),
+  new MarkerEntity("4D",32.0598,1.1018,3.23,10,395391,121794),
+  new MarkerEntity("5E",29.586,1.445,4,3,120000,160000)
+)
+    
 //This list have 5 options of styles to be applied on map
 const mapStyles: any = {
     default: [],
@@ -329,24 +324,21 @@ const mapStyles: any = {
 
 const libraries: Library[] = ['places']
 
-function Map2Component() {
+function MapComponent() {
 
   const loaderOptions = React.useMemo(() => (
     {
-    id: process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID || 'google-maps-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: libraries
+      id: process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID || 'google-maps-script',
+      googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+      libraries: libraries
     }), []); 
-
-  
     const { isLoaded } = useJsApiLoader(loaderOptions);
 
     const mapId: string = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID) ? process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID: ''
-
     const [map, setMap] = React.useState<any>(null)
 
-    const [markers, setMarkers] = React.useState<any[]>([])
-    const [selectedMarker, setSelectedMarker] = React.useState(null);
+    const [markers, setMarkers] = React.useState<MarkerEntity[]>([])
+    const [selectedMarker, setSelectedMarker] = React.useState<MarkerEntity|null>();
     
  
     const [layers, setLayers] = React.useState<string[]>([])
@@ -355,9 +347,9 @@ function Map2Component() {
     const [mapStyleSelected, setMapStyleSelected] = React.useState('')
 
     //input values latitude and longitude
-    const [latInputValue, setLatInputValue] = React.useState(0);
-    const [lngInputValue, setLngInputValue] = React.useState(0);
-    const [autocomplete, setAutocomplete] = React.useState(null);
+    const [latInputValue, setLatInputValue] = React.useState<string>('');
+    const [lngInputValue, setLngInputValue] = React.useState<string>('');
+    const [autocomplete, setAutocomplete] = React.useState<any>(null);
 
 
     //get the markers saved in local storage
@@ -381,18 +373,19 @@ function Map2Component() {
     }
     
     //load the map and the markers saved in local storage
-    const onLoad = React.useCallback(function callback(map: google.maps.Map) {
+    const onLoad = React.useCallback(
+      function callback(map: google.maps.Map) {
         const bounds = new window.google.maps.LatLngBounds(mapCenter);
         setMap(map)
         loadMarkersFromLocalStorage();
-    }, [])
+      }, [])
 
     const onUnmount = React.useCallback(function callback(map: any) {
         setMap(null)
     }, [])
 
     //On Marker click, set the selected marker
-    const onMarkerClick = (point: React.SetStateAction<null>) => {
+    const onMarkerClick = (point: React.SetStateAction<MarkerEntity>) => {
         setSelectedMarker(point);
     };
 
@@ -416,26 +409,26 @@ function Map2Component() {
     });
     }
 
-    const onLoadAutoComplete = (autocomplete) => {
+    const onLoadAutoComplete = (autocomplete:any) => {
       console.log('autocomplete: ', autocomplete);
       setAutocomplete(autocomplete);
     };
   
     const onPlaceChanged = () => {
       if (autocomplete !== null) {
-        let place = autocomplete.getPlace()
+        const place: any = autocomplete.getPlace()
         console.log(place);
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
-        setLatInputValue(formatLatLong(latitude))
-        setLngInputValue(formatLatLong(longitude))
+        setLatInputValue(latitude)
+        setLngInputValue(longitude)
         addMarker(latitude,longitude)
       } else {
         console.log('Autocomplete is not loaded yet!');
       }
     }; 
 
-  const addMarker = (latitude, longitude) => {
+  const addMarker = (latitude: any, longitude: any) => {
 
     if(!isValidLatitudeLongitude(latitude, longitude))
     {
@@ -454,10 +447,10 @@ function Map2Component() {
     //formating the latitude & longitude to max of 5 decimal places
     const lat_value = formatLatLong(latitude);
     const lng_value =  formatLatLong(longitude);
-    console.log(`addMarker => lat:${lat_value} lng:${longitude}`)
+    console.log(`addMarker => lat:${lat_value} lng:${lng_value}`)
 
     //preparing the new Maker
-    let newMarker = { id: generateUUID() , lat: lat_value, lng: lng_value, meta_depth:0,  meta_layer:0,  easting:0, northing:0 }
+    const newMarker: MarkerEntity = new MarkerEntity(generateUUID(), lat_value, lng_value);
 
     //adding the new Marker and updating the local storage
     setMarkers(prev => {
@@ -469,18 +462,17 @@ function Map2Component() {
     //focus the map near to the new marker
     map.panTo({ lat: newMarker.lat, lng: newMarker.lng })
   }
-
-      
-  const formatLatLong = (value) => {
-    return parseFloat(parseFloat(value).toFixed(5));
+ 
+  const formatLatLong = (value:number) => {
+    return parseFloat(parseFloat(value.toString()).toFixed(5));
   } 
   
-  function isValidLatitudeLongitude(lat: string, lng: string) {
-    if ((lat.length <= 0) || (lng.length <= 0))
+  function isValidLatitudeLongitude(lat?: number, lng?: number) {
+    if (!(lat) || !(lng))
       return false;
     
-    const lat_value: number = parseFloat(lat)
-    const lng_value: number = parseFloat(lng)
+    const lat_value: number = parseFloat(lat.toString())
+    const lng_value: number = parseFloat(lng.toString())
     //validating the latitude and longitude
     //the max values for google maps are: lat(-85.052 to 85.052) and long(-180 to 180)
     //more than these values, the marker will me placed out of the map
@@ -499,7 +491,7 @@ function Map2Component() {
   }
 
   //delete the marker and update the local storage
-  const deleteMarker = (markerToRemove: null) => {
+  const deleteMarker = (markerToRemove: MarkerEntity) => {
     setMarkers(prevMarkers => {
         if (prevMarkers.includes(markerToRemove)) {
            let markers = prevMarkers.filter(marker => marker !== markerToRemove);
@@ -516,6 +508,7 @@ function Map2Component() {
   const regex = /^[0-9.\-+]*$/;
   const handleLatChange = (event: { target: { value: any; }; }) =>{
     const { value } = event.target;
+    console.log(`${value}`)
     if (regex.test(value))
       setLatInputValue(value);
     else
@@ -556,8 +549,8 @@ function Map2Component() {
                   onClick={() =>  { 
                                     addMarker(latInputValue, lngInputValue);
                                     //reseting the inputs
-                                    setLatInputValue(0)
-                                    setLngInputValue(0)
+                                    setLatInputValue('')
+                                    setLngInputValue('')
                                   }
                   }
                 className={styles.button} />&nbsp;
@@ -589,13 +582,13 @@ function Map2Component() {
         
         onRightClick={(event) => { 
             {/* add markers when clicking on map */}
-            const lat: number = (event.latLng)? event.latLng?.lat() : 0;
-            const lng: number  = (event.latLng)? event.latLng?.lat() : 0;
+            const lat: number = (event.latLng)?  event.latLng?.lat() : 0;
+            const lng: number  = (event.latLng)? event.latLng?.lng() : 0;
             addMarker(lat, lng)
         }}
       >
         {/* generating the markers */}
-        {markers.map(point => (
+        {markers.map((point: MarkerEntity) => (
             <Marker key={point.id} 
                     position={{ lat: point.lat, lng: point.lng }} 
                     onClick={() => onMarkerClick(point)} />
@@ -605,7 +598,7 @@ function Map2Component() {
 
         {/* generating 1 modal component, will be displayed when selectedMarker exists */}
         <MarkerModalComponent marker={selectedMarker}
-                     onDelete={() => deleteMarker(selectedMarker)}
+                     onDelete={() => (selectedMarker)? deleteMarker(selectedMarker) : null}
                      onClose={() => setSelectedMarker(null)}
         />
 
@@ -629,4 +622,4 @@ function Map2Component() {
   ) : <></>
 }
 
-export default Map2Component
+export default MapComponent
