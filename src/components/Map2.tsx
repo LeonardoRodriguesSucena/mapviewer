@@ -2,18 +2,19 @@ import React from 'react'
 import styles from "../styles/map.module.css";
 import MarkerModalComponent from '../components/MarkerModal.js'
 import MarkerEntity from '../entities/MarkerEntity'
+import { Library } from '@googlemaps/js-api-loader';
 
 import { GoogleMap, useJsApiLoader, Marker, 
     TrafficLayer,
     TransitLayer, 
-    BicyclingLayer
-
+    BicyclingLayer,
+    Autocomplete
 } from '@react-google-maps/api';
 
 //map size in screen
 const containerStyle = {
   width: '100%',
-  height: '92.5vh'
+  height: '92vh'
 };
 
 //initial center of map
@@ -326,13 +327,20 @@ const mapStyles: any = {
     }],
 };
 
+const libraries: Library[] = ['places']
 
 function Map2Component() {
+
+  const loaderOptions = React.useMemo(() => (
+    {
+    id: process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID || 'google-maps-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries: libraries
+    }), []); 
+
   
-    const { isLoaded } = useJsApiLoader({
-        id: process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID,
-        googleMapsApiKey: (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)? process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:''
-    })
+    const { isLoaded } = useJsApiLoader(loaderOptions);
+
     const mapId: string = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID) ? process.env.NEXT_PUBLIC_GOOGLE_MAPS_ID: ''
 
     const [map, setMap] = React.useState<any>(null)
@@ -349,6 +357,7 @@ function Map2Component() {
     //input values latitude and longitude
     const [latInputValue, setLatInputValue] = React.useState(0);
     const [lngInputValue, setLngInputValue] = React.useState(0);
+    const [autocomplete, setAutocomplete] = React.useState(null);
 
 
     //get the markers saved in local storage
@@ -407,9 +416,28 @@ function Map2Component() {
     });
     }
 
-  const addMarker = (latitude: number, longitude: number) => {
+    const onLoadAutoComplete = (autocomplete) => {
+      console.log('autocomplete: ', autocomplete);
+      setAutocomplete(autocomplete);
+    };
+  
+    const onPlaceChanged = () => {
+      if (autocomplete !== null) {
+        let place = autocomplete.getPlace()
+        console.log(place);
+        const latitude = place.geometry.location.lat();
+        const longitude = place.geometry.location.lng();
+        setLatInputValue(formatLatLong(latitude))
+        setLngInputValue(formatLatLong(longitude))
+        addMarker(latitude,longitude)
+      } else {
+        console.log('Autocomplete is not loaded yet!');
+      }
+    }; 
 
-    if(!isValidLatitudeLongitude(String(latitude), String(longitude)))
+  const addMarker = (latitude, longitude) => {
+
+    if(!isValidLatitudeLongitude(latitude, longitude))
     {
       alert('Invalid Latitude & Longitude!\nPlease insert:\nFor Latitude = -85.052 to 85.052\nFor Longitude = -180 to 180')
       return;
@@ -424,8 +452,8 @@ function Map2Component() {
     }
 
     //formating the latitude & longitude to max of 5 decimal places
-    const lat_value = parseFloat(parseFloat(String(latitude)).toFixed(5));
-    const lng_value = parseFloat(parseFloat(String(longitude)).toFixed(5));
+    const lat_value = formatLatLong(latitude);
+    const lng_value =  formatLatLong(longitude);
     console.log(`addMarker => lat:${lat_value} lng:${longitude}`)
 
     //preparing the new Maker
@@ -442,6 +470,11 @@ function Map2Component() {
     map.panTo({ lat: newMarker.lat, lng: newMarker.lng })
   }
 
+      
+  const formatLatLong = (value) => {
+    return parseFloat(parseFloat(value).toFixed(5));
+  } 
+  
   function isValidLatitudeLongitude(lat: string, lng: string) {
     if ((lat.length <= 0) || (lng.length <= 0))
       return false;
@@ -505,7 +538,16 @@ function Map2Component() {
                 <input type="checkbox" id="cb_transitLayer"   defaultChecked={layers.includes('transit')}    onClick={() => changeLayer('transit')} />Transit
                 <input type="checkbox" id="cb_bicyclingLayer" defaultChecked={layers.includes('bicycling')}  onClick={() => changeLayer('bicycling')} />Bicycling
         </div>
-
+        <div className={styles.divmenu}>
+            <b>Map Styles: </b>
+            <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
+                {Object.keys(mapStyles).map(key => (
+                    <option key={key} value={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </option>
+                ))}
+            </select>
+        </div>
         <div id="div_markers" className={styles.divmenu}>
             <b>Markers: </b>
                 Latitude:  <input id="txt_lat" type="text" value={latInputValue} className={styles.txt_lat_lgn} onChange={handleLatChange} maxLength={9}/>&nbsp;
@@ -518,18 +560,10 @@ function Map2Component() {
                                     setLngInputValue(0)
                                   }
                   }
-                className={styles.button} />
-        </div>
-
-        <div className={styles.divmenu}>
-            <b>Map Styles: </b>
-            <select id="sel_mapStyle" onChange={(e) => setSelectedStyle(e.target.value)} value={mapStyleSelected}>
-                {Object.keys(mapStyles).map(key => (
-                    <option key={key} value={key}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </option>
-                ))}
-            </select>
+                className={styles.button} />&nbsp;
+                <Autocomplete onPlaceChanged={onPlaceChanged} onLoad={onLoadAutoComplete}>
+                  <input id='txt_autocomplete' maxLength={100} className={styles.txt_autocomplete}></input>
+                </Autocomplete>
         </div>
 
         <div className={styles.divmenu_right}>
