@@ -26,14 +26,14 @@ http://localhost:3000/
 
 3)Application Architecture</br>
   /src -> Application files and folders</br>
-    /pages</br>
-    	- Application pages. Example: index.js.</br>
-    /components</br>
-        - Application components. Example: Map.js.</br>
-    /styles</br>
-    	- Styles for components. Each component can have its associated style file. </br>
-      	  Example: map.module.css (for the Map component).</br>
-    /infrastructure</br>
-        - External resources needed by the application.</br>
-      	  This can include integrations with Web APIs, Databases, etc.</br>
-      	  Example: /infrastructure/api/weatherAPIService.ts.</br>
+    &nbsp;/pages</br>
+    	&nbsp;&nbsp;- Application pages. Example: index.js.</br>
+    &nbsp;/components</br>
+      &nbsp;&nbsp;- Application components. Example: Map.js.</br>
+    &nbsp;/styles</br>
+    	&nbsp;&nbsp;- Styles for components. Each component can have its associated style file. </br>
+      &nbsp;&nbsp;Example: map.module.css (for the Map component).</br>
+    &nbsp;/infrastructure</br>
+      &nbsp;&nbsp;- External resources needed by the application.</br>
+      &nbsp;&nbsp;This can include integrations with Web APIs, Databases, etc.</br>
+      &nbsp;&nbsp;Example: /infrastructure/api/weatherAPIService.ts.</br>
